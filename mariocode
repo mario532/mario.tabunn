@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jump Action Game</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #87CEEB; /* Sky blue */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100vh;
+  }
+
+  #game-area {
+    position: relative;
+    width: 800px;
+    height: 400px;
+    background-color: #7CFC00; /* Grass */
+    border-top: 5px solid #008000;
+  }
+
+  .character {
+    position: absolute;
+    bottom: 20px;
+    left: 50px;
+    width: 40px;
+    height: 40px;
+    background-color: #FF0000; /* Character color */
+    border: 2px solid #000;
+    border-radius: 5px;
+  }
+
+  .obstacle {
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background-color: #8B4513; /* Obstacle color */
+    border: 2px solid #000;
+  }
+</style>
+</head>
+<body>
+<div id="game-area">
+  <div class="character" id="character"></div>
+  <div class="obstacle" id="obstacle"></div>
+</div>
+
+<script>
+  const character = document.getElementById('character');
+  const obstacle = document.getElementById('obstacle');
+  const gameArea = document.getElementById('game-area');
+
+  let isJumping = false;
+  let gameOver = false;
+
+  // Jump action
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !isJumping) {
+      isJumping = true;
+      let jumpHeight = 0;
+
+      const jumpInterval = setInterval(() => {
+        if (jumpHeight >= 150) {
+          clearInterval(jumpInterval);
+          const fallInterval = setInterval(() => {
+            if (jumpHeight <= 0) {
+              clearInterval(fallInterval);
+              isJumping = false;
+            } else {
+              jumpHeight -= 5;
+              character.style.bottom = `${jumpHeight + 20}px`;
+            }
+          }, 20);
+        } else {
+          jumpHeight += 5;
+          character.style.bottom = `${jumpHeight + 20}px`;
+        }
+      }, 20);
+    }
+  });
+
+  // Obstacle movement
+  const moveObstacle = () => {
+    let obstaclePosition = gameArea.offsetWidth;
+
+    const obstacleInterval = setInterval(() => {
+      if (gameOver) {
+        clearInterval(obstacleInterval);
+        alert('Game Over!');
+        location.reload();
+      }
+
+      obstaclePosition -= 5;
+      obstacle.style.left = `${obstaclePosition}px`;
+
+      if (obstaclePosition <= 0) {
+        obstaclePosition = gameArea.offsetWidth;
+      }
+
+      // Collision detection
+      const charBottom = parseInt(window.getComputedStyle(character).bottom);
+      const obstacleLeft = parseInt(window.getComputedStyle(obstacle).left);
+
+      if (obstacleLeft <= 90 && obstacleLeft >= 50 && charBottom <= 30) {
+        gameOver = true;
+      }
+    }, 20);
+  };
+
+  moveObstacle();
+</script>
+</body>
+</html>
